@@ -56,6 +56,11 @@ dependencies {
         exclude group: 'stax', module: 'stax-api'
         exclude group: 'stax', module: 'stax'
     }
+    // TikXML
+    implementation deps.tikxml.annotation
+    implementation deps.tikxml.core
+    implementation deps.tikxml.retrofit_converter
+    kapt deps.tikxml.processor
 
     androidTestImplementation deps.support_test.runner
     androidTestImplementation deps.support_test.espresso_core
