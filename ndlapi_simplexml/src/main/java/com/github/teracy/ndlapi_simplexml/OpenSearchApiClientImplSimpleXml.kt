@@ -27,7 +27,7 @@ class OpenSearchApiClientImplSimpleXml @Inject constructor(okHttpClient: OkHttpC
         .create(OpenSearchApiService::class.java)
 
     override fun search(isbn: String): Single<Book> {
-        return service.getOpenSearchResponse(isbn).map { it.convert() }
+        return service.getOpenSearchResponse(isbn).map(ResponseSimpleXml::convert)
     }
 }
 

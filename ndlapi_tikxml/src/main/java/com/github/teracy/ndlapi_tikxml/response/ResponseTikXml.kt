@@ -96,7 +96,7 @@ internal fun ResponseTikXml.convert(): Book {
     return Book(
         totalResults = totalResults,
         startIndex = startIndex,
-        itemsPerPage = itemsPerPage,
+        itemsPerPage = if (itemsPerPage == 0) null else itemsPerPage,
         items = items.map(ResponseTikXmlItem::convert)
     )
 }

@@ -140,8 +140,8 @@ internal fun ResponseSimpleXml.convert(): Book {
     return Book(
         totalResults = totalResults,
         startIndex = startIndex,
-        itemsPerPage = itemsPerPage,
-        items = items.map { it.convert() }
+        itemsPerPage = if (itemsPerPage == 0) null else itemsPerPage,
+        items = items.map(ResponseSimpleXmlItem::convert)
     )
 }
 
