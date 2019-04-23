@@ -4,6 +4,8 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'kotlin-kapt'
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -73,6 +75,9 @@ dependencies {
     // Firebase
     implementation deps.firebase.runtime
     implementation deps.firebase.ml_vison
+    // PermissionsDispatcher
+    implementation deps.permissionsdispatcher.runtime
+    kapt deps.permissionsdispatcher.processor
 
     androidTestImplementation deps.support_test.runner
     androidTestImplementation deps.support_test.espresso_core
