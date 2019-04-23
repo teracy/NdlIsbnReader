@@ -1,1 +1,1 @@
-include ':app', ':ndlapi'
+include ':app', ':ndlapi', ':ndlapi_simplexml', ':ndlapi_tikxml'
