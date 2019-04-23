@@ -82,7 +82,7 @@ class OpenSearchResponseTest {
         assertThat(item0.title).isEqualTo("Gitによるバージョン管理")
         // subjects自体は空でないが、全てxsi:type属性があるもののはず
         assertThat(item0.subjects.size).isEqualTo(2)
-        assertThat(item0.subjects.filter { n -> n.xsiType.isEmpty() }).isEmpty()
+        assertThat(item0.subjects.filter { n -> n.xsiType?.isEmpty() ?: true }).isEmpty()
 
         assertThat(item0.volume).isEmpty()
         assertThat(item0.edition).isEmpty()
@@ -117,7 +117,7 @@ class OpenSearchResponseTest {
         assertThat(item0.title).isEqualTo("技術者のための高等数学")
         // subjects自体は空でなく、xsi:type属性がないものが1件あるはず
         assertThat(item0.subjects.size).isEqualTo(4)
-        val item0FilteredSubjects = item0.subjects.filter { n -> n.xsiType.isEmpty() }
+        val item0FilteredSubjects = item0.subjects.filter { n -> n.xsiType?.isEmpty() ?: true }
         assertThat(item0FilteredSubjects).isNotEmpty
         assertThat(item0FilteredSubjects.size).isEqualTo(1)
         assertThat(item0FilteredSubjects[0].subjectName).isEqualTo("複素関数論")

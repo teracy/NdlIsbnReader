@@ -122,7 +122,7 @@ class OpenSearchResponse {
             @get:Attribute(name = "type", required = false)
             @set:Namespace(prefix = "xsi", reference = "")
             @set:Attribute(name = "type", required = false)
-            var xsiType: String = ""
+            var xsiType: String? = null
 
             @get:Text(required = false)
             @set:Text(required = false)
