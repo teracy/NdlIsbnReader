@@ -6,7 +6,7 @@ import org.simpleframework.xml.*
  * OpenSearch APIのResponse（SimpleXML実装）
  */
 @Root(name = "channel", strict = false)
-class OpenSearchResponse {
+class ResponseSimpleXml {
     @get:Path("channel")
     @get:Namespace(prefix = "openSearch", reference = "")
     @get:Element(name = "totalResults", required = false)

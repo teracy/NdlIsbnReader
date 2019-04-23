@@ -6,7 +6,7 @@ import com.tickaroo.tikxml.annotation.*
  * OpenSearch APIのResponse（TikXML実装）
  */
 @Xml(name = "rss")
-class OpenSearchResponse {
+class ResponseTikXml {
     @Path("channel")
     @PropertyElement(name = "openSearch:totalResults")
     var totalResults: Int = 0

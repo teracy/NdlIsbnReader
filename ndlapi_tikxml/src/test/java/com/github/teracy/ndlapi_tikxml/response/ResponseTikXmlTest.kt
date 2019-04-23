@@ -18,10 +18,10 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 
-class OpenSearchResponseTest {
+class ResponseTikXmlTest {
     private interface Service {
         @GET("/opensearch")
-        fun openSearch(): Call<OpenSearchResponse>
+        fun openSearch(): Call<ResponseTikXml>
     }
 
     @get:Rule

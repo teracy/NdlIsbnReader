@@ -28,6 +28,8 @@ android {
 
 dependencies {
     implementation project(':ndlapi')
+    implementation project(':ndlapi_simplexml')
+    implementation project(':ndlapi_tikxml')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation deps.kotlin.stdlib
     implementation deps.support.app_compat

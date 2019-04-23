@@ -2,7 +2,7 @@
 // https://github.com/square/retrofit/issues/2733
 @file:Suppress("DEPRECATION")
 
-package com.github.teracy.ndlapi.response
+package com.github.teracy.ndlapi_simplexml.response
 
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -21,10 +21,10 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 
-class OpenSearchResponseTest {
+class ResponseSimpleXmlTest {
     private interface Service {
         @GET("/opensearch")
-        fun openSearch(): Call<OpenSearchResponse>
+        fun openSearch(): Call<ResponseSimpleXml>
     }
 
     @get:Rule
