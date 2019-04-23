@@ -35,3 +35,6 @@ captures/
 
 # Env specific files
 .DS_Store
+
+# Firebase config file
+google-services.json
