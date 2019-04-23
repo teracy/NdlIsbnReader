@@ -72,6 +72,7 @@ dependencies {
     implementation deps.lifecycle.extensions
     // Firebase
     implementation deps.firebase.runtime
+    implementation deps.firebase.ml_vison
 
     androidTestImplementation deps.support_test.runner
     androidTestImplementation deps.support_test.espresso_core

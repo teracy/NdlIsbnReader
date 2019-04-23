@@ -24,6 +24,7 @@ versions.glide = '4.9.0'
 versions.tikxml = '0.8.13'
 versions.gms = '4.2.0'
 versions.firebase = '16.0.8'
+versions.mlkit = '19.0.3'
 def deps = [:]
 
 deps.android_gradle_plugin = "com.android.tools.build:gradle:$versions.android_gradle_plugin"
@@ -116,6 +117,7 @@ deps.gms = "com.google.gms:google-services:$versions.gms"
 
 def firebase = [:]
 firebase.runtime = "com.google.firebase:firebase-core:$versions.firebase"
+firebase.ml_vison = "com.google.firebase:firebase-ml-vision:$versions.mlkit"
 deps.firebase = firebase
 
 ext.deps = deps
