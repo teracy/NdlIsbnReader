@@ -76,7 +76,9 @@ dependencies {
     implementation deps.firebase.runtime
     implementation deps.firebase.ml_vison
     // PermissionsDispatcher
-    implementation deps.permissionsdispatcher.runtime
+    implementation(deps.permissionsdispatcher.runtime) {
+        exclude group: 'com.android.support'
+    }
     kapt deps.permissionsdispatcher.processor
 
     androidTestImplementation deps.support_test.runner
