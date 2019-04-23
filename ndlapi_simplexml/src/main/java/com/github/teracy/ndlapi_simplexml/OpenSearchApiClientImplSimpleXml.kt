@@ -1,6 +1,9 @@
 package com.github.teracy.ndlapi_simplexml
 
+import com.github.teracy.ndlapi.OpenSearchApiClient
+import com.github.teracy.ndlapi.response.Book
 import com.github.teracy.ndlapi_simplexml.response.ResponseSimpleXml
+import com.github.teracy.ndlapi_simplexml.response.convert
 import io.reactivex.Single
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -11,7 +14,10 @@ import retrofit2.http.Headers
 import retrofit2.http.Query
 import javax.inject.Inject
 
-class OpenSearchApiClient @Inject constructor(okHttpClient: OkHttpClient) : OpenSearchApi {
+/**
+ * Open Search APIクライアントのSimpleXml実装
+ */
+class OpenSearchApiClientImplSimpleXml @Inject constructor(okHttpClient: OkHttpClient) : OpenSearchApiClient {
     private val service: OpenSearchApiService = Retrofit.Builder()
         .client(okHttpClient)
         .baseUrl("http://iss.ndl.go.jp")
@@ -20,13 +26,9 @@ class OpenSearchApiClient @Inject constructor(okHttpClient: OkHttpClient) : Open
         .build()
         .create(OpenSearchApiService::class.java)
 
-    override fun search(isbn: String): Single<ResponseSimpleXml> {
-        return service.getOpenSearchResponse(isbn)
+    override fun search(isbn: String): Single<Book> {
+        return service.getOpenSearchResponse(isbn).map { it.convert() }
     }
-}
-
-internal interface OpenSearchApi {
-    fun search(isbn: String): Single<ResponseSimpleXml>
 }
 
 internal interface OpenSearchApiService {

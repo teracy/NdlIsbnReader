@@ -1,12 +1,14 @@
 package com.github.teracy.ndlapi_simplexml.response
 
+import com.github.teracy.ndlapi.response.Book
+import com.github.teracy.ndlapi.response.Item
 import org.simpleframework.xml.*
 
 /**
  * OpenSearch APIのResponse（SimpleXML実装）
  */
 @Root(name = "channel", strict = false)
-class ResponseSimpleXml {
+internal class ResponseSimpleXml {
     @get:Path("channel")
     @get:Namespace(prefix = "openSearch", reference = "")
     @get:Element(name = "totalResults", required = false)
@@ -37,11 +39,11 @@ class ResponseSimpleXml {
     @get:ElementList(inline = true, required = false)
     @set:Path("channel")
     @set:ElementList(inline = true, required = false)
-    var items: List<Item> = ArrayList()
+    var items: List<ResponseSimpleXmlItem> = ArrayList()
 }
 
 @Root(name = "item", strict = false)
-class Item {
+internal class ResponseSimpleXmlItem {
     // NOTE: Elementとして定義すると上位で既に定義済みの"link"と被るため、PathとTextで定義する
     // https://stackoverflow.com/questions/31999265/parsing-xml-feed-die-with-element-is-already-used
     /**
@@ -71,7 +73,7 @@ class Item {
     @get:ElementList(entry = "subject", inline = true, required = false)
     @set:Namespace(prefix = "dc", reference = "")
     @set:ElementList(entry = "subject", inline = true, required = false)
-    var subjects: List<Subject> = ArrayList()
+    var subjects: List<ResponseSimpleXmlSubject> = ArrayList()
 
     /**
      * 巻次
@@ -119,7 +121,7 @@ class Item {
     var creators: List<String> = ArrayList()
 }
 
-class Subject {
+internal class ResponseSimpleXmlSubject {
     @get:Namespace(prefix = "xsi", reference = "")
     @get:Attribute(name = "type", required = false)
     @set:Namespace(prefix = "xsi", reference = "")
@@ -128,5 +130,34 @@ class Subject {
 
     @get:Text(required = false)
     @set:Text(required = false)
-    var subjectName: String = ""
+    var name: String = ""
+}
+
+/**
+ * ResponseSimpleXml→Bookへの変換
+ */
+internal fun ResponseSimpleXml.convert(): Book {
+    return Book(
+        totalResults = totalResults,
+        startIndex = startIndex,
+        itemsPerPage = itemsPerPage,
+        items = items.map { it.convert() }
+    )
+}
+
+/**
+ * ResponseSimpleXmlItem→Itemへの変換
+ */
+internal fun ResponseSimpleXmlItem.convert(): Item {
+    val filteredSubject = subjects.filter { n -> n.xsiType?.isEmpty() ?: true }
+    return Item(
+        link = link,
+        title = title,
+        subject = if (filteredSubject.isEmpty()) null else filteredSubject[0].name,
+        volume = volume,
+        edition = edition,
+        seriesTitle = seriesTitle,
+        publisher = publisher,
+        creators = creators
+    )
 }

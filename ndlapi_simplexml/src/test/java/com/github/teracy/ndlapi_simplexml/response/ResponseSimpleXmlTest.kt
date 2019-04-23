@@ -120,7 +120,7 @@ class ResponseSimpleXmlTest {
         val item0FilteredSubjects = item0.subjects.filter { n -> n.xsiType?.isEmpty() ?: true }
         assertThat(item0FilteredSubjects).isNotEmpty
         assertThat(item0FilteredSubjects.size).isEqualTo(1)
-        assertThat(item0FilteredSubjects[0].subjectName).isEqualTo("複素関数論")
+        assertThat(item0FilteredSubjects[0].name).isEqualTo("複素関数論")
 
         assertThat(item0.volume).isEqualTo("4")
         assertThat(item0.edition).isEqualTo("第5版")
