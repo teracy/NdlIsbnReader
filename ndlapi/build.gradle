@@ -22,11 +22,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
 }
 
 dependencies {
@@ -38,29 +38,8 @@ dependencies {
     testImplementation deps.assertj
     androidTestImplementation deps.assertj
 
-    // javax.inject
-    implementation deps.javax_inject
     // RxJava
     implementation deps.rxjava2
-    // OkHttp
-    implementation deps.okhttp3.runtime
-    implementation deps.okhttp3.logging_interceptor
-    testImplementation deps.okhttp3.mockwebserver
-    // retrofit
-    implementation deps.retrofit2.runtime
-    implementation(deps.retrofit2.adapter_rxjava2) {
-        exclude group: 'io.reactivex.rxjava2', module: 'rxjava'
-    }
-    implementation(deps.retrofit2.converter_simplexml) {
-        exclude group: 'xpp3', module: 'xpp3'
-        exclude group: 'stax', module: 'stax-api'
-        exclude group: 'stax', module: 'stax'
-    }
-    // TikXML
-    implementation deps.tikxml.annotation
-    implementation deps.tikxml.core
-    implementation deps.tikxml.retrofit_converter
-    kapt deps.tikxml.processor
 
     androidTestImplementation deps.support_test.runner
     androidTestImplementation deps.support_test.espresso_core
