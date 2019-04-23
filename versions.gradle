@@ -21,7 +21,7 @@ versions.dagger = "2.16"
 versions.paging = "1.0.0"
 versions.lifecycle = "1.1.1"
 versions.glide = '4.9.0'
-versions.tikxml = '0.8.15'
+versions.tikxml = '0.8.13'
 def deps = [:]
 
 deps.android_gradle_plugin = "com.android.tools.build:gradle:$versions.android_gradle_plugin"
