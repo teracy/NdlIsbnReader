@@ -1,12 +1,14 @@
 package com.github.teracy.ndlapi_tikxml.response
 
+import com.github.teracy.ndlapi.response.Book
+import com.github.teracy.ndlapi.response.Item
 import com.tickaroo.tikxml.annotation.*
 
 /**
  * OpenSearch APIのResponse（TikXML実装）
  */
 @Xml(name = "rss")
-class ResponseTikXml {
+internal class ResponseTikXml {
     @Path("channel")
     @PropertyElement(name = "openSearch:totalResults")
     var totalResults: Int = 0
@@ -19,11 +21,11 @@ class ResponseTikXml {
 
     @Path("channel")
     @Element
-    var items: List<Item> = ArrayList()
+    var items: List<ResponseTikXmlItem> = ArrayList()
 }
 
 @Xml(name = "item")
-class Item {
+internal class ResponseTikXmlItem {
     /**
      * 国会図書館の詳細情報へのリンク（要trim）
      */
@@ -40,7 +42,7 @@ class Item {
      * 別タイトル
      */
     @Element
-    var subjects: List<Subject> = ArrayList()
+    var subjects: List<ResponseTikXmlSubject> = ArrayList()
 
     /**
      * 巻次
@@ -70,11 +72,11 @@ class Item {
      * 著者
      */
     @Element(name = "dc:creator")
-    var creators: List<Creator> = ArrayList()
+    var creators: List<ResponseTikXmlCreator> = ArrayList()
 }
 
 @Xml(name = "dc:subject")
-class Subject {
+internal class ResponseTikXmlSubject {
     @Attribute(name = "xsi:type")
     var xsiType: String? = null
     @TextContent
@@ -82,7 +84,36 @@ class Subject {
 }
 
 @Xml(name = "dc:creator")
-class Creator {
+internal class ResponseTikXmlCreator {
     @TextContent
     var name: String = ""
+}
+
+/**
+ * ResponseTikXml→Bookへの変換
+ */
+internal fun ResponseTikXml.convert(): Book {
+    return Book(
+        totalResults = totalResults,
+        startIndex = startIndex,
+        itemsPerPage = itemsPerPage,
+        items = items.map(ResponseTikXmlItem::convert)
+    )
+}
+
+/**
+ * ResponseSimpleXmlItem→Itemへの変換
+ */
+internal fun ResponseTikXmlItem.convert(): Item {
+    val filteredSubject = subjects.filter { n -> n.xsiType?.isEmpty() ?: true }
+    return Item(
+        link = link,
+        title = title,
+        subject = if (filteredSubject.isEmpty()) null else filteredSubject[0].name,
+        volume = volume,
+        edition = edition,
+        seriesTitle = seriesTitle,
+        publisher = publisher,
+        creators = creators.map(ResponseTikXmlCreator::name)
+    )
 }

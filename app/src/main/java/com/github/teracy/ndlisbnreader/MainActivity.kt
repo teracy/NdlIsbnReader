@@ -2,7 +2,7 @@ package com.github.teracy.ndlisbnreader
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.github.teracy.ndlapi_simplexml.OpenSearchApiClientImplSimpleXml
+import com.github.teracy.ndlapi_tikxml.OpenSearchApiClientImplTikXml
 import com.github.teracy.ndlisbnreader.util.AppSchedulerProvider
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -23,8 +23,10 @@ class MainActivity : AppCompatActivity() {
             .addInterceptor(interceptor)
             .build()
 
-        // ひとまずSimpleXML版
-        val client = OpenSearchApiClientImplSimpleXml(okHttpClient)
+//        // SimpleXML版
+//        val client = OpenSearchApiClientImplSimpleXml(okHttpClient)
+        // TikXML版
+        val client = OpenSearchApiClientImplTikXml(okHttpClient)
         val schedulerProvider = AppSchedulerProvider()
 
         val subscribe = client.search("9784563005641")
