@@ -38,12 +38,6 @@ dependencies {
     testImplementation deps.assertj
     androidTestImplementation deps.assertj
 
-    // moshi
-    implementation deps.moshi.runtime
-    implementation(deps.moshi.moshi_kotlin) {
-        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib'
-        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-reflect'
-    }
     // javax.inject
     implementation deps.javax_inject
     // RxJava
@@ -57,18 +51,11 @@ dependencies {
     implementation(deps.retrofit2.adapter_rxjava2) {
         exclude group: 'io.reactivex.rxjava2', module: 'rxjava'
     }
-    implementation(deps.retrofit2.converter_moshi) {
-        exclude group: 'com.squareup.moshi', module: 'moshi'
-    }
     implementation(deps.retrofit2.converter_simplexml) {
         exclude group: 'xpp3', module: 'xpp3'
         exclude group: 'stax', module: 'stax-api'
         exclude group: 'stax', module: 'stax'
     }
-    // RxAndroid
-    implementation deps.rxandroid
-
-    implementation deps.support.app_compat
 
     androidTestImplementation deps.support_test.runner
     androidTestImplementation deps.support_test.espresso_core
