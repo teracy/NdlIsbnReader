@@ -21,6 +21,7 @@ versions.dagger = "2.16"
 versions.paging = "1.0.0"
 versions.lifecycle = "1.1.1"
 versions.glide = '4.9.0'
+versions.tikxml = '0.8.15'
 def deps = [:]
 
 deps.android_gradle_plugin = "com.android.tools.build:gradle:$versions.android_gradle_plugin"
@@ -101,5 +102,12 @@ glide.compiler = "com.github.bumptech.glide:compiler:$versions.glide"
 glide.okhttp3 = "com.github.bumptech.glide:okhttp3-integration:$versions.glide"
 glide.recyclerview = "com.github.bumptech.glide:recyclerview-integration:$versions.glide"
 deps.glide = glide
+
+def tikxml = [:]
+tikxml.core = "com.tickaroo.tikxml:core:$versions.tikxml"
+tikxml.annotation = "com.tickaroo.tikxml:annotation:$versions.tikxml"
+tikxml.processor = "com.tickaroo.tikxml:processor:$versions.tikxml"
+tikxml.retrofit_converter = "com.tickaroo.tikxml:retrofit-converter:$versions.tikxml"
+deps.tikxml = tikxml
 
 ext.deps = deps
