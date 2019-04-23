@@ -1,0 +1,74 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "com.github.teracy.ndlisbnreader"
+        minSdkVersion 23
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation project(':ndlapi')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation deps.kotlin.stdlib
+    implementation deps.support.app_compat
+    implementation deps.support.recyclerview
+    implementation deps.constraint.layout
+
+    testImplementation deps.junit
+    testImplementation deps.assertj
+    androidTestImplementation deps.assertj
+
+    // javax.inject
+    implementation deps.javax_inject
+    // RxJava
+    implementation deps.rxjava2
+    // OkHttp
+    implementation deps.okhttp3.runtime
+    implementation deps.okhttp3.logging_interceptor
+    // retrofit
+    implementation deps.retrofit2.runtime
+    implementation(deps.retrofit2.adapter_rxjava2) {
+        exclude group: 'io.reactivex.rxjava2', module: 'rxjava'
+    }
+    implementation(deps.retrofit2.converter_moshi) {
+        exclude group: 'com.squareup.moshi', module: 'moshi'
+    }
+    // RxAndroid
+    implementation deps.rxandroid
+    // Dagger2
+    implementation deps.dagger.runtime
+    implementation(deps.dagger.android) {
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    }
+    implementation(deps.dagger.android_support) {
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    }
+    // Paging
+    implementation deps.paging
+    // LifeCycle
+    implementation deps.lifecycle.reactivestreams
+    implementation deps.lifecycle.extensions
+
+    androidTestImplementation deps.support_test.runner
+    androidTestImplementation deps.support_test.espresso_core
+}

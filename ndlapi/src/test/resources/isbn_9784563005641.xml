@@ -1,0 +1,87 @@
+<rss xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:openSearch="http://a9.com/-/spec/opensearchrss/1.0/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:dcndl="http://ndl.go.jp/dcndl/terms/" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+    <channel>
+        <title>9784563005641 - 国立国会図書館サーチ OpenSearch</title>
+        <link>
+            http://iss.ndl.go.jp/api/opensearch?isbn=9784563005641
+        </link>
+        <description>Search results for isbn=9784563005641 </description>
+        <language>ja</language>
+        <openSearch:totalResults>2</openSearch:totalResults>
+        <openSearch:startIndex>1</openSearch:startIndex>
+        <openSearch:itemsPerPage/>
+        <item>
+            <title>技術者のための高等数学</title>
+            <link>
+                http://iss.ndl.go.jp/books/R100000002-I000001897466-00
+            </link>
+            <description>
+                <![CDATA[
+<p>4,培風館,4563005649</p> <ul><li>タイトル： 技術者のための高等数学</li> <li>タイトル（読み）： ギジュツシャ ノ タメノ コウトウ スウガク</li> <li>責任表示： E.クライツィグ 著,</li> </ul>
+]]>
+            </description>
+            <author>E.クライツィグ 著,Kreyszig, Erwin,</author>
+            <category>本</category>
+            <guid isPermaLink="true">
+                http://iss.ndl.go.jp/books/R100000002-I000001897466-00
+            </guid>
+            <pubDate>Tue, 17 Jan 2006 09:00:00 +0900</pubDate>
+            <dc:title>技術者のための高等数学</dc:title>
+            <dcndl:titleTranscription>ギジュツシャ ノ タメノ コウトウ スウガク</dcndl:titleTranscription>
+            <dc:creator>Kreyszig, Erwin</dc:creator>
+            <dcndl:volume>4</dcndl:volume>
+            <dcndl:edition>第5版</dcndl:edition>
+            <dc:publisher>培風館</dc:publisher>
+            <dcterms:issued xsi:type="dcterms:W3CDTF">1988</dcterms:issued>
+            <dcndl:price>1800円 (税込)</dcndl:price>
+            <dc:extent>210p ; 21cm</dc:extent>
+            <dc:identifier xsi:type="dcndl:ISBN">4563005649</dc:identifier>
+            <dc:identifier xsi:type="dcndl:NDLBibID">000001897466</dc:identifier>
+            <dc:identifier xsi:type="dcndl:JPNO">88016033</dc:identifier>
+            <dc:subject>複素関数論</dc:subject>
+            <dc:subject xsi:type="dcndl:NDLC">MA111</dc:subject>
+            <dc:subject xsi:type="dcndl:NDLC">MA115</dc:subject>
+            <dc:subject xsi:type="dcndl:NDC8">413</dc:subject>
+            <dc:description>監訳: 近藤次郎, 堀素夫</dc:description>
+            <dc:description>原タイトル: Advanced engineering mathematics. 5th.ed</dc:description>
+            <dc:description>参考文献: p195～196</dc:description>
+            <rdfs:seeAlso rdf:resource="http://id.ndl.go.jp/bib/000001897466"/>
+            <rdfs:seeAlso rdf:resource="http://websv.aichi-pref-library.jp/winj/opac/switch-detail-iccap.do?bibid=1100329403"/>
+            <rdfs:seeAlso rdf:resource="http://web.oml.city.osaka.lg.jp/webopac_i_ja/0080127388"/>
+            <rdfs:seeAlso rdf:resource="https://www.library.pref.osaka.jp/licsxp-opac/WOpacMsgNewListToTifTilDetailAction.do?tilcod=10000000576621"/>
+            <rdfs:seeAlso rdf:resource="https://www.library.pref.chiba.lg.jp//licsxp-iopac/WOpacMsgNewListToTifTilDetailAction.do?tilcod=1000000858051"/>
+            <rdfs:seeAlso rdf:resource="http://www.shiga-pref-library.jp/wo/opc_srh/srh_detail/0367295/"/>
+        </item>
+        <item>
+            <title>複素関数論</title>
+            <link>
+                http://iss.ndl.go.jp/books/R100000001-I078284198-00
+            </link>
+            <description>
+                <![CDATA[
+<p>培風館,4563005649</p> <ul><li>タイトル： 複素関数論</li> <li>タイトル（読み）： フクソ カンスウ ロン</li> <li>責任表示： E.クライツィグ 著 ; 丹生慶四郎 共訳 ; 阿部寛治 共訳,</li> <li>シリーズ名： 技術者のための高等数学 ; 4</li> <li>シリーズ名（読み）： ギジュツ シャ ノ タメ ノ コウトウ スウガク</li> </ul>
+]]>
+            </description>
+            <author>
+                E.クライツィグ 著 ; 丹生慶四郎 共訳 ; 阿部寛治 共訳,E.クライツィグ,丹生慶四郎,阿部寛治,
+            </author>
+            <category>本</category>
+            <guid isPermaLink="true">
+                http://iss.ndl.go.jp/books/R100000001-I078284198-00
+            </guid>
+            <dc:title>複素関数論</dc:title>
+            <dcndl:titleTranscription>フクソ カンスウ ロン</dcndl:titleTranscription>
+            <dc:creator>E.クライツィグ</dc:creator>
+            <dc:creator>丹生慶四郎</dc:creator>
+            <dc:creator>阿部寛治</dc:creator>
+            <dcndl:edition>第5版</dcndl:edition>
+            <dcndl:seriesTitle>技術者のための高等数学 ; 4</dcndl:seriesTitle>
+            <dcndl:seriesTitleTranscription>ギジュツ シャ ノ タメ ノ コウトウ スウガク</dcndl:seriesTitleTranscription>
+            <dc:publisher>培風館</dc:publisher>
+            <dcterms:issued xsi:type="dcterms:W3CDTF">1988</dcterms:issued>
+            <dc:extent>210p ; 21cm</dc:extent>
+            <dc:identifier xsi:type="dcndl:ISBN">4563005649</dc:identifier>
+            <dc:identifier xsi:type="dcndl:ISBN">4563005649</dc:identifier>
+            <rdfs:seeAlso rdf:resource="https://catalog.library.metro.tokyo.jp/winj/opac/switch-detail-iccap.do?bibid=1100525248"/>
+        </item>
+    </channel>
+</rss>
