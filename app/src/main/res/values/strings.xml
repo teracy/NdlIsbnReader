@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">国会図書館ISBN検索</string>
+    <string name="permission_camera_rationale">カメラを利用するには許可が必要です</string>
 </resources>
