@@ -29,6 +29,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import permissions.dispatcher.*
 import java.util.*
+import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
 /**
@@ -45,20 +46,24 @@ class MainActivity : AppCompatActivity() {
     private var backgroundHandler: Handler? = null
 
     private var barcode: String? = null
+    private val cameraOpenCloseLock = Semaphore(1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        textureView.afterMeasured {
-//            // TextureViewの描画が完了したらsurfaceTextureListenerをセットする
-//            this.surfaceTextureListener = textureViewSurfaceTextureListener
-//        }
-        textureView.surfaceTextureListener = textureViewSurfaceTextureListener
+        textureView.afterMeasured {
+            // TextureViewの描画が完了したらsurfaceTextureListenerをセットする
+            this.surfaceTextureListener = textureViewSurfaceTextureListener
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
         startBackgroundThread()
     }
 
-    // TODO: ViewのonClickでフォーカスを発火させるための処理を実装する
+    // TODO: 可能ならViewのonClickでフォーカスを発火させるための処理を実装する
 
     override fun onPause() {
         closeCamera()
@@ -77,9 +82,16 @@ class MainActivity : AppCompatActivity() {
     fun openCamera() {
         val manager: CameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
+            if (!cameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
+                throw RuntimeException("Time out waiting to lock camera opening.")
+            }
             manager.openCamera(manager.cameraIdList[0], cameraDeviceStateCallback, null)
         } catch (e: SecurityException) {
             e.printStackTrace()
+        } catch (e: CameraAccessException) {
+            e.printStackTrace()
+        } catch (e: InterruptedException) {
+            throw RuntimeException("Interrupted while trying to lock camera opening.", e)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -111,12 +123,19 @@ class MainActivity : AppCompatActivity() {
     // endregion
 
     private fun closeCamera() {
-        captureSession?.close()
-        captureSession = null
-        cameraDevice?.close()
-        cameraDevice = null
-        imageReader?.close()
-        imageReader = null
+        try {
+            cameraOpenCloseLock.acquire()
+            captureSession?.close()
+            captureSession = null
+            cameraDevice?.close()
+            cameraDevice = null
+            imageReader?.close()
+            imageReader = null
+        } catch (e: InterruptedException) {
+            throw RuntimeException("Interrupted while trying to lock camera closing.", e)
+        } finally {
+            cameraOpenCloseLock.release()
+        }
     }
 
     private fun startBackgroundThread() {
@@ -207,11 +226,13 @@ class MainActivity : AppCompatActivity() {
 
     private val cameraDeviceStateCallback = object : CameraDevice.StateCallback() {
         override fun onOpened(cameraDevice: CameraDevice) {
+            cameraOpenCloseLock.release()
             this@MainActivity.cameraDevice = cameraDevice
             createCameraPreviewSession()
         }
 
         override fun onDisconnected(cameraDevice: CameraDevice) {
+            cameraOpenCloseLock.release()
             cameraDevice.close()
             this@MainActivity.cameraDevice = null
         }
@@ -219,7 +240,7 @@ class MainActivity : AppCompatActivity() {
         override fun onError(cameraDevice: CameraDevice, error: Int) {
             Log.w(TAG, "CameraDevice.StateCallback.onError")
             onDisconnected(cameraDevice)
-            finish()
+            this@MainActivity.finish()
         }
     }
 
