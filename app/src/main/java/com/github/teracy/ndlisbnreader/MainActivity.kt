@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
+import android.media.Image
 import android.media.ImageReader
 import android.os.Bundle
 import android.os.Handler
@@ -43,6 +44,8 @@ class MainActivity : AppCompatActivity() {
     private var backgroundThread: HandlerThread? = null
     private var backgroundHandler: Handler? = null
 
+    private var barcode: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -55,6 +58,14 @@ class MainActivity : AppCompatActivity() {
         startBackgroundThread()
     }
 
+    // TODO: ViewのonClickでフォーカスを発火させるための処理を実装する
+
+    override fun onPause() {
+        closeCamera()
+        stopBackgroundThread()
+        super.onPause()
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // NOTE: 以下はAnnotation Processorで生成
@@ -64,7 +75,6 @@ class MainActivity : AppCompatActivity() {
     // region Runtime Permission Implementation
     @NeedsPermission(Manifest.permission.CAMERA)
     fun openCamera() {
-        Log.d(TAG, "openCamera called")
         val manager: CameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
             manager.openCamera(manager.cameraIdList[0], cameraDeviceStateCallback, null)
@@ -100,15 +110,35 @@ class MainActivity : AppCompatActivity() {
     }
     // endregion
 
+    private fun closeCamera() {
+        captureSession?.close()
+        captureSession = null
+        cameraDevice?.close()
+        cameraDevice = null
+        imageReader?.close()
+        imageReader = null
+    }
+
     private fun startBackgroundThread() {
-        Log.d(TAG, "startBackgroundThread")
-        backgroundThread = HandlerThread("CameraBackground").also { it.start() }
+        backgroundThread = HandlerThread("CameraBackground").apply { start() }
         backgroundHandler = Handler(backgroundThread?.looper)
+    }
+
+    private fun stopBackgroundThread() {
+        backgroundThread?.quitSafely()
+        try {
+            backgroundThread?.join()
+            backgroundThread = null
+            backgroundHandler = null
+        } catch (e: InterruptedException) {
+            Log.e(TAG, e.toString())
+        }
     }
 
     private fun createCameraPreviewSession() {
         try {
             val texture = textureView.surfaceTexture
+            // TODO: サイズはひとまず仮
             texture.setDefaultBufferSize(300, 300)
             val surface = Surface(texture)
 
@@ -121,8 +151,17 @@ class MainActivity : AppCompatActivity() {
                 null
             )
         } catch (e: CameraAccessException) {
-            Log.e(TAG, e.toString())
+            Log.e(TAG, e.message)
         }
+    }
+
+    /**
+     * キャプチャ処理再開
+     */
+    private fun resumeCapture() {
+        previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_CANCEL)
+        captureSession?.capture(previewRequestBuilder.build(), captureCallback, backgroundHandler)
+        captureSession?.setRepeatingRequest(previewRequest, captureCallback, backgroundHandler)
     }
 
     private val textureViewSurfaceTextureListener = object : TextureView.SurfaceTextureListener {
@@ -132,9 +171,10 @@ class MainActivity : AppCompatActivity() {
 
         override fun onSurfaceTextureDestroyed(p0: SurfaceTexture?): Boolean = false
 
-        override fun onSurfaceTextureAvailable(p0: SurfaceTexture?, width: Int, height: Int) {
-            imageReader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
-            imageReader?.setOnImageAvailableListener(onImageAvailableListener, backgroundHandler)
+        override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) {
+            imageReader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 2).apply {
+                setOnImageAvailableListener(onImageAvailableListener, backgroundHandler)
+            }
             // Annotation ProcessorによってopenCameraから生成されたメソッドを呼ぶ
             openCameraWithPermissionCheck()
         }
@@ -145,7 +185,6 @@ class MainActivity : AppCompatActivity() {
             if (cameraDevice == null) return
             captureSession = session
             try {
-                Log.d(TAG, "cameraCaptureSessionStateCallback")
                 previewRequestBuilder.set(
                     CaptureRequest.CONTROL_AF_MODE,
                     CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
@@ -178,63 +217,58 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onError(cameraDevice: CameraDevice, error: Int) {
+            Log.w(TAG, "CameraDevice.StateCallback.onError")
             onDisconnected(cameraDevice)
             finish()
         }
     }
 
     private val captureCallback = object : CameraCaptureSession.CaptureCallback() {
-//        override fun onCaptureStarted(
-//            session: CameraCaptureSession,
-//            request: CaptureRequest,
-//            timestamp: Long,
-//            frameNumber: Long
-//        ) {
-//            Log.d(TAG, "//////onCaptureStarted//////")
-//        }
-//
-//        override fun onCaptureProgressed(
-//            session: CameraCaptureSession,
-//            request: CaptureRequest,
-//            partialResult: CaptureResult
-//        ) {
-//            Log.d(TAG, "//////onCaptureProgressed//////")
-//        }
-//
-//        override fun onCaptureCompleted(
-//            session: CameraCaptureSession,
-//            request: CaptureRequest,
-//            result: TotalCaptureResult
-//        ) {
-//            Log.d(TAG, "//////onCaptureCompleted//////")
-//        }
-//
-//        override fun onCaptureFailed(session: CameraCaptureSession, request: CaptureRequest, failure: CaptureFailure) {
-//            Log.d(TAG, "//////onCaptureFailed//////")
-//        }
-//
-//        override fun onCaptureSequenceCompleted(session: CameraCaptureSession, sequenceId: Int, frameNumber: Long) {
-//            Log.d(TAG, "//////onCaptureSequenceCompleted//////")
-//        }
-//
-//        override fun onCaptureSequenceAborted(session: CameraCaptureSession, sequenceId: Int) {
-//            Log.d(TAG, "//////onCaptureSequenceAborted//////")
-//        }
-//
-//        override fun onCaptureBufferLost(
-//            session: CameraCaptureSession,
-//            request: CaptureRequest,
-//            target: Surface,
-//            frameNumber: Long
-//        ) {
-//            Log.d(TAG, "//////onCaptureBufferLost//////")
-//        }
+        override fun onCaptureCompleted(
+            session: CameraCaptureSession,
+            request: CaptureRequest,
+            result: TotalCaptureResult
+        ) {
+            process()
+        }
+
+        /**
+         * 読み取った画像の処理
+         */
+        private fun process() {
+            val captureBuilder = cameraDevice?.createCaptureRequest(
+                CameraDevice.TEMPLATE_STILL_CAPTURE
+            )?.apply {
+                imageReader?.surface?.apply {
+                    addTarget(this)
+                }
+                set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+            }
+            val captureCallback = object : CameraCaptureSession.CaptureCallback() {
+
+                override fun onCaptureCompleted(
+                    session: CameraCaptureSession,
+                    request: CaptureRequest,
+                    result: TotalCaptureResult
+                ) {
+                    resumeCapture()
+                }
+            }
+
+            captureBuilder?.build()?.let { request ->
+                captureSession?.apply {
+                    stopRepeating()
+                    abortCaptures()
+                    capture(request, captureCallback, null)
+                }
+            }
+        }
     }
 
-    // FIXME: 呼ばれないのはなぜ？？
-    private val onImageAvailableListener = ImageReader.OnImageAvailableListener {
-        val bitmap = textureView.bitmap
-        val visionImage = FirebaseVisionImage.fromBitmap(bitmap)
+    private fun Image.readBarcode() {
+        // ひとまず回転は考えない
+        val visionImage = FirebaseVisionImage.fromMediaImage(this, 0)
+
         // バーコード読み取り：ISBNなのでEAN-13フォーマット
         val options = FirebaseVisionBarcodeDetectorOptions.Builder()
             .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_EAN_13)
@@ -242,17 +276,36 @@ class MainActivity : AppCompatActivity() {
         val detector = FirebaseVision.getInstance().getVisionBarcodeDetector(options)
         detector.detectInImage(visionImage)
             .addOnSuccessListener { barcodes ->
-                Log.d(TAG, "****************SUCCESS****************")
                 if (barcodes.isEmpty()) {
-                    Log.w(TAG, "****************SUCCESS but EMPTY****************")
                     return@addOnSuccessListener
                 }
-                val barcode = barcodes[0]
-                requestNdlApi(barcode.rawValue!!)
+                barcodes
+                    .map { it.rawValue }
+                    .firstOrNull {
+                        it?.run {
+                            "^978.*".toRegex().matches(this) || "^979.*".toRegex().matches(this)
+                        } ?: false
+                    }?.apply {
+                        if (this != barcode) {
+                            barcode = this
+                            Log.d(TAG, String.format("barcode:%s", barcode))
+//                            requestNdlApi(barcode!!)
+                        }
+                    }
             }
             .addOnFailureListener {
-                Log.e(TAG, "****************FAILED****************")
+                Log.e(TAG, "FAILED: readBarcode")
             }
+    }
+
+    private val onImageAvailableListener = ImageReader.OnImageAvailableListener {
+        backgroundHandler?.post {
+            backgroundHandler?.post {
+                it.acquireNextImage().apply {
+                    readBarcode()
+                }.close()
+            }
+        }
     }
 
     /**
