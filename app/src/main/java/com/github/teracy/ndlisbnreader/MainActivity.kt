@@ -45,8 +45,9 @@ class MainActivity : AppCompatActivity() {
     private var backgroundThread: HandlerThread? = null
     private var backgroundHandler: Handler? = null
 
-    private var barcode: String? = null
     private val cameraOpenCloseLock = Semaphore(1)
+
+    private var isbnCode: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -307,10 +308,10 @@ class MainActivity : AppCompatActivity() {
                             "^978.*".toRegex().matches(this) || "^979.*".toRegex().matches(this)
                         } ?: false
                     }?.apply {
-                        if (this != barcode) {
-                            barcode = this
-                            Log.d(TAG, String.format("barcode:%s", barcode))
-//                            requestNdlApi(barcode!!)
+                        if (this != isbnCode) {
+                            isbnCode = this
+                            textViewIsbn.text = isbnCode
+                            requestNdlApi(isbnCode!!)
                         }
                     }
             }
@@ -350,6 +351,41 @@ class MainActivity : AppCompatActivity() {
             .observeOn(schedulerProvider.ui())
             .subscribe({
                 Log.d(TAG, String.format("response:%d\n", it.items.size))
+                if (it.items.isEmpty()) {
+                    return@subscribe
+                }
+                it.items[0].apply {
+                    // タイトル
+                    val titleBuilder = StringBuilder()
+                    titleBuilder.append(title)
+                    subject?.let { s ->
+                        if (s.isNotEmpty()) {
+                            titleBuilder.append(" ").append(s)
+                        }
+                    }
+                    volume?.let { v ->
+                        if (v.isNotEmpty()) {
+                            titleBuilder.append(" ").append(v)
+                        }
+                    }
+                    edition?.let { e ->
+                        if (e.isNotEmpty()) {
+                            titleBuilder.append(" ").append(e)
+                        }
+                    }
+                    seriesTitle?.let { t ->
+                        if (t.isNotEmpty()) {
+                            titleBuilder.append(" ").append(t)
+                        }
+                    }
+                    textViewTitle.text = titleBuilder.toString()
+
+                    // 出版社
+                    textViewPublisher.text = publisher
+
+                    // 著者
+                    textViewCreator.text = creators?.joinToString(separator = ", ")
+                }
             }, {
                 Log.e(TAG, String.format("error:" + it.message))
             })
