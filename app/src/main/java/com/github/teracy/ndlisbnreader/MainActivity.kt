@@ -32,9 +32,6 @@ import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
-/**
- * https://github.com/kboy-silvergym/MLKitSample/blob/e869d384c9dcbf0ee869738c8fcac582659a1af8/Android/app/src/main/java/net/kboy/mlkitsample/MainActivity.kt
- */
 @RuntimePermissions
 class MainActivity : AppCompatActivity() {
     private var captureSession: CameraCaptureSession? = null
