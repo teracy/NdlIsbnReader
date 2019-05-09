@@ -1,18 +1,17 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    apply from: 'versions.gradle'
     repositories {
         google()
         jcenter()
         mavenCentral()
     }
     dependencies {
-        classpath deps.android_gradle_plugin
-        classpath deps.kotlin.gradle_plugin
-        classpath deps.dokka.gradle_plugin
+        classpath(Dependencies.android_gradle_plugin)
+        classpath(Dependencies.kotlin.gradle_plugin)
+        classpath(Dependencies.dokka.gradle_plugin)
 
-        classpath deps.gms
+        classpath(Dependencies.gms)
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -26,6 +25,6 @@ allprojects {
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+tasks.create("clean ", type = Delete::class) {
+    delete(rootProject.buildDir)
 }
