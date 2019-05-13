@@ -1,5 +1,5 @@
 object Dependencies {
-    object Versions {
+    internal object Versions {
         const val androidGradlePlugin = "3.4.0"
         const val kotlin = "1.3.21"
         const val junit = "4.12"
@@ -28,10 +28,10 @@ object Dependencies {
         const val permissionsdispatcher = "3.3.1"
     }
 
-    const val android_gradle_plugin = "com.android.tools.build:gradle:${Versions.androidGradlePlugin}"
+    const val androidGradlePlugin = "com.android.tools.build:gradle:${Versions.androidGradlePlugin}"
 
-    object kotlin {
-        const val gradle_plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
+    object Kotlin {
+        const val gradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
         const val stdlib = "org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlin}"
         const val reflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
     }
@@ -40,88 +40,88 @@ object Dependencies {
     const val hamcrest = "org.hamcrest:hamcrest-library:${Versions.hamcrest}"
     const val rxjava2 = "io.reactivex.rxjava2:rxjava:${Versions.rxjava2}"
     const val rxandroid = "io.reactivex.rxjava2:rxandroid:${Versions.rxandroid}"
-    const val javax_inject = "javax.inject:javax.inject:${Versions.javaxInject}"
+    const val javaxInject = "javax.inject:javax.inject:${Versions.javaxInject}"
 
-    object dokka {
-        const val gradle_plugin = "org.jetbrains.dokka:dokka-gradle-plugin:${Versions.dokka}"
+    object Dokka {
+        const val gradlePlugin = "org.jetbrains.dokka:dokka-gradle-plugin:${Versions.dokka}"
     }
 
-    object moshi {
+    object Moshi {
         const val runtime = "com.squareup.moshi:moshi:${Versions.moshi}"
-        const val moshi_kotlin = "com.squareup.moshi:moshi-kotlin:${Versions.moshi}"
+        const val moshiKotlin = "com.squareup.moshi:moshi-kotlin:${Versions.moshi}"
     }
 
-    object okhttp3 {
+    object Okhttp3 {
         const val runtime = "com.squareup.okhttp3:okhttp:${Versions.okhttp3}"
-        const val logging_interceptor = "com.squareup.okhttp3:logging-interceptor:${Versions.okhttp3}"
+        const val loggingInterceptor = "com.squareup.okhttp3:logging-interceptor:${Versions.okhttp3}"
         const val mockwebserver = "com.squareup.okhttp3:mockwebserver:${Versions.okhttp3}"
     }
 
-    object retrofit2 {
+    object Retrofit2 {
         const val runtime = "com.squareup.retrofit2:retrofit:${Versions.retrofit2}"
-        const val adapter_rxjava2 = "com.squareup.retrofit2:adapter-rxjava2:${Versions.retrofit2}"
-        const val converter_moshi = "com.squareup.retrofit2:converter-moshi:${Versions.retrofit2}"
-        const val converter_simplexml = "com.squareup.retrofit2:converter-simplexml:${Versions.retrofit2}"
+        const val adapterRxjava2 = "com.squareup.retrofit2:adapter-rxjava2:${Versions.retrofit2}"
+        const val converterMoshi = "com.squareup.retrofit2:converter-moshi:${Versions.retrofit2}"
+        const val converterSimplexml = "com.squareup.retrofit2:converter-simplexml:${Versions.retrofit2}"
     }
 
     const val assertj = "org.assertj:assertj-core:${Versions.assertj}"
 
-    object support {
+    object Support {
         const val annotations = "com.android.support:support-annotations:${Versions.support}"
-        const val app_compat = "com.android.support:appcompat-v7:${Versions.support}"
+        const val appCompat = "com.android.support:appcompat-v7:${Versions.support}"
         const val design = "com.android.support:design:${Versions.support}"
         const val recyclerview = "com.android.support:recyclerview-v7:${Versions.support}"
     }
 
     const val multidex = "com.android.support:multidex:${Versions.multidex}"
 
-    object constraint {
+    object Constraint {
         const val layout = "com.android.support.constraint:constraint-layout:${Versions.constraint}"
     }
 
-    object support_test {
+    object SupportTest {
         const val runner = "com.android.support.test:runner:${Versions.supportTest}"
-        const val espresso_core = "com.android.support.test.espresso:espresso-core:${Versions.espresso}"
+        const val espressoCore = "com.android.support.test.espresso:espresso-core:${Versions.espresso}"
     }
 
-    object dagger {
+    object Dagger {
         const val runtime = "com.google.dagger:dagger:${Versions.dagger}"
         const val compiler = "com.google.dagger:dagger-compiler:${Versions.dagger}"
         const val android = "com.google.dagger:dagger-android:${Versions.dagger}"
-        const val android_support = "com.google.dagger:dagger-android-support:${Versions.dagger}"
-        const val android_support_compiler = "com.google.dagger:dagger-android-processor:${Versions.dagger}"
+        const val androidSupport = "com.google.dagger:dagger-android-support:${Versions.dagger}"
+        const val androidSupportCompiler = "com.google.dagger:dagger-android-processor:${Versions.dagger}"
     }
 
     const val paging = "android.arch.paging:runtime:${Versions.paging}"
 
-    object lifecycle {
+    object Lifecycle {
         const val reactivestreams = "android.arch.lifecycle:reactivestreams:${Versions.lifecycle}"
         const val extensions = "android.arch.lifecycle:extensions:${Versions.lifecycle}"
         const val compiler = "android.arch.lifecycle:compiler:${Versions.lifecycle}"
     }
 
-    object glide {
+    object Glide {
         const val runtime = "com.github.bumptech.glide:glide:${Versions.glide}"
         const val compiler = "com.github.bumptech.glide:compiler:${Versions.glide}"
         const val okhttp3 = "com.github.bumptech.glide:okhttp3-integration:${Versions.glide}"
         const val recyclerview = "com.github.bumptech.glide:recyclerview-integration:${Versions.glide}"
     }
 
-    object tikxml {
+    object Tikxml {
         const val core = "com.tickaroo.tikxml:core:${Versions.tikxml}"
         const val annotation = "com.tickaroo.tikxml:annotation:${Versions.tikxml}"
         const val processor = "com.tickaroo.tikxml:processor:${Versions.tikxml}"
-        const val retrofit_converter = "com.tickaroo.tikxml:retrofit-converter:${Versions.tikxml}"
+        const val retrofitConverter = "com.tickaroo.tikxml:retrofit-converter:${Versions.tikxml}"
     }
 
     const val gms = "com.google.gms:google-services:${Versions.gms}"
 
-    object firebase {
+    object Firebase {
         const val runtime = "com.google.firebase:firebase-core:${Versions.firebase}"
-        const val ml_vison = "com.google.firebase:firebase-ml-vision:${Versions.mlkit}"
+        const val mlVision = "com.google.firebase:firebase-ml-vision:${Versions.mlkit}"
     }
 
-    object permissionsdispatcher {
+    object Permissionsdispatcher {
         const val runtime = "com.github.hotchemi:permissionsdispatcher:${Versions.permissionsdispatcher}"
         const val processor = "com.github.hotchemi:permissionsdispatcher-processor:${Versions.permissionsdispatcher}"
     }

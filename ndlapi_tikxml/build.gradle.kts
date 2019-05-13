@@ -33,32 +33,32 @@ dependencies {
 
     implementation(fileTree("dir" to "libs", "include" to listOf("*.jar")))
 
-    implementation(Dependencies.kotlin.stdlib)
-    implementation(Dependencies.support.app_compat)
+    implementation(Dependencies.Kotlin.stdlib)
+    implementation(Dependencies.Support.appCompat)
 
     testImplementation(Dependencies.junit)
     testImplementation(Dependencies.assertj)
     androidTestImplementation(Dependencies.assertj)
 
     // javax.inject
-    implementation(Dependencies.javax_inject)
+    implementation(Dependencies.javaxInject)
     // RxJava
     implementation(Dependencies.rxjava2)
     // OkHttp
-    implementation(Dependencies.okhttp3.runtime)
-    implementation(Dependencies.okhttp3.logging_interceptor)
-    testImplementation(Dependencies.okhttp3.mockwebserver)
+    implementation(Dependencies.Okhttp3.runtime)
+    implementation(Dependencies.Okhttp3.loggingInterceptor)
+    testImplementation(Dependencies.Okhttp3.mockwebserver)
     // retrofit
-    implementation(Dependencies.retrofit2.runtime)
-    implementation(Dependencies.retrofit2.adapter_rxjava2) {
+    implementation(Dependencies.Retrofit2.runtime)
+    implementation(Dependencies.Retrofit2.adapterRxjava2) {
         exclude(group = "io.reactivex.rxjava2", module = "rxjava")
     }
     // TikXML
-    implementation(Dependencies.tikxml.annotation)
-    implementation(Dependencies.tikxml.core)
-    implementation(Dependencies.tikxml.retrofit_converter)
-    kapt(Dependencies.tikxml.processor)
+    implementation(Dependencies.Tikxml.annotation)
+    implementation(Dependencies.Tikxml.core)
+    implementation(Dependencies.Tikxml.retrofitConverter)
+    kapt(Dependencies.Tikxml.processor)
 
-    androidTestImplementation(Dependencies.support_test.runner)
-    androidTestImplementation(Dependencies.support_test.espresso_core)
+    androidTestImplementation(Dependencies.SupportTest.runner)
+    androidTestImplementation(Dependencies.SupportTest.espressoCore)
 }

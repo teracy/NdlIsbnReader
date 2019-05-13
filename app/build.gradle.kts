@@ -36,54 +36,54 @@ dependencies {
 
     implementation(fileTree("dir" to "libs", "include" to listOf("*.jar")))
 
-    implementation(Dependencies.kotlin.stdlib)
-    implementation(Dependencies.support.app_compat)
-    implementation(Dependencies.support.recyclerview)
-    implementation(Dependencies.constraint.layout)
+    implementation(Dependencies.Kotlin.stdlib)
+    implementation(Dependencies.Support.appCompat)
+    implementation(Dependencies.Support.recyclerview)
+    implementation(Dependencies.Constraint.layout)
 
     testImplementation(Dependencies.junit)
     testImplementation(Dependencies.assertj)
     androidTestImplementation(Dependencies.assertj)
 
     // javax.inject
-    implementation(Dependencies.javax_inject)
+    implementation(Dependencies.javaxInject)
     // RxJava
     implementation(Dependencies.rxjava2)
     // OkHttp
-    implementation(Dependencies.okhttp3.runtime)
-    implementation(Dependencies.okhttp3.logging_interceptor)
+    implementation(Dependencies.Okhttp3.runtime)
+    implementation(Dependencies.Okhttp3.loggingInterceptor)
     // retrofit
-    implementation(Dependencies.retrofit2.runtime)
-    implementation(Dependencies.retrofit2.adapter_rxjava2) {
+    implementation(Dependencies.Retrofit2.runtime)
+    implementation(Dependencies.Retrofit2.adapterRxjava2) {
         exclude(group = "io.reactivex.rxjava2", module = "rxjava")
     }
-    implementation(Dependencies.retrofit2.converter_moshi) {
+    implementation(Dependencies.Retrofit2.converterMoshi) {
         exclude(group = "com.squareup.moshi", module = "moshi")
     }
     // RxAndroid
     implementation(Dependencies.rxandroid)
     // Dagger2
-    implementation(Dependencies.dagger.runtime)
-    implementation(Dependencies.dagger.android) {
+    implementation(Dependencies.Dagger.runtime)
+    implementation(Dependencies.Dagger.android) {
         exclude(group = "com.google.code.findbugs", module = "jsr305")
     }
-    implementation(Dependencies.dagger.android_support) {
+    implementation(Dependencies.Dagger.androidSupport) {
         exclude(group = "com.google.code.findbugs", module = "jsr305")
     }
     // Paging
     implementation(Dependencies.paging)
     // LifeCycle
-    implementation(Dependencies.lifecycle.reactivestreams)
-    implementation(Dependencies.lifecycle.extensions)
+    implementation(Dependencies.Lifecycle.reactivestreams)
+    implementation(Dependencies.Lifecycle.extensions)
     // Firebase
-    implementation(Dependencies.firebase.runtime)
-    implementation(Dependencies.firebase.ml_vison)
+    implementation(Dependencies.Firebase.runtime)
+    implementation(Dependencies.Firebase.mlVision)
     // PermissionsDispatcher
-    implementation(Dependencies.permissionsdispatcher.runtime) {
+    implementation(Dependencies.Permissionsdispatcher.runtime) {
         exclude(group = "com.android.support")
     }
-    kapt(Dependencies.permissionsdispatcher.processor)
+    kapt(Dependencies.Permissionsdispatcher.processor)
 
-    androidTestImplementation(Dependencies.support_test.runner)
-    androidTestImplementation(Dependencies.support_test.espresso_core)
+    androidTestImplementation(Dependencies.SupportTest.runner)
+    androidTestImplementation(Dependencies.SupportTest.espressoCore)
 }

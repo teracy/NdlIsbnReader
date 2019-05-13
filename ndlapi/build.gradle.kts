@@ -31,8 +31,8 @@ android {
 dependencies {
     implementation(fileTree("dir" to "libs", "include" to listOf("*.jar")))
 
-    implementation(Dependencies.kotlin.stdlib)
-    implementation(Dependencies.support.app_compat)
+    implementation(Dependencies.Kotlin.stdlib)
+    implementation(Dependencies.Support.appCompat)
 
     testImplementation(Dependencies.junit)
     testImplementation(Dependencies.assertj)
@@ -41,6 +41,6 @@ dependencies {
     // RxJava
     implementation(Dependencies.rxjava2)
 
-    androidTestImplementation(Dependencies.support_test.runner)
-    androidTestImplementation(Dependencies.support_test.espresso_core)
+    androidTestImplementation(Dependencies.SupportTest.runner)
+    androidTestImplementation(Dependencies.SupportTest.espressoCore)
 }

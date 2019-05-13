@@ -7,9 +7,9 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath(Dependencies.android_gradle_plugin)
-        classpath(Dependencies.kotlin.gradle_plugin)
-        classpath(Dependencies.dokka.gradle_plugin)
+        classpath(Dependencies.androidGradlePlugin)
+        classpath(Dependencies.Kotlin.gradlePlugin)
+        classpath(Dependencies.Dokka.gradlePlugin)
 
         classpath(Dependencies.gms)
         // NOTE: Do not place your application dependencies here; they belong
