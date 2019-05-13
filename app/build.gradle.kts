@@ -37,6 +37,7 @@ dependencies {
     implementation(fileTree("dir" to "libs", "include" to listOf("*.jar")))
 
     implementation(Dependencies.Kotlin.stdlib)
+    implementation(Dependencies.kotlinxCoroutines)
     implementation(Dependencies.Support.appCompat)
     implementation(Dependencies.Support.recyclerview)
     implementation(Dependencies.Constraint.layout)

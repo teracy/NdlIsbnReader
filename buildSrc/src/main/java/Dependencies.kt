@@ -1,7 +1,7 @@
 object Dependencies {
     internal object Versions {
         const val androidGradlePlugin = "3.4.0"
-        const val kotlin = "1.3.21"
+        const val kotlin = "1.3.30"
         const val junit = "4.12"
         const val hamcrest = "1.3"
         const val dokka = "0.9.17"
@@ -26,6 +26,7 @@ object Dependencies {
         const val firebase = "16.0.8"
         const val mlkit = "19.0.3"
         const val permissionsdispatcher = "3.3.1"
+        const val kotlinxCoroutines = "1.2.1"
     }
 
     const val androidGradlePlugin = "com.android.tools.build:gradle:${Versions.androidGradlePlugin}"
@@ -125,4 +126,6 @@ object Dependencies {
         const val runtime = "com.github.hotchemi:permissionsdispatcher:${Versions.permissionsdispatcher}"
         const val processor = "com.github.hotchemi:permissionsdispatcher-processor:${Versions.permissionsdispatcher}"
     }
+
+    const val kotlinxCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinxCoroutines}"
 }
