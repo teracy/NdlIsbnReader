@@ -20,7 +20,6 @@ import android.view.View
 import android.view.ViewTreeObserver
 import com.github.teracy.ndlapi.response.Book
 import com.github.teracy.ndlapi_tikxml.OpenSearchApiClientImplTikXml
-import com.github.teracy.ndlisbnreader.util.AppSchedulerProvider
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions
@@ -43,7 +42,6 @@ class MainActivity : AppCompatActivity() {
     private var cameraDevice: CameraDevice? = null
     private lateinit var previewRequestBuilder: CaptureRequest.Builder
     private var imageReader: ImageReader? = null
-    private lateinit var previewRequest: CaptureRequest
     private var backgroundThread: HandlerThread? = null
     private var backgroundHandler: Handler? = null
 
@@ -171,22 +169,8 @@ class MainActivity : AppCompatActivity() {
             previewRequestBuilder.addTarget(surface)
 
             GlobalScope.launch(Dispatchers.Main) {
-                val session = cameraDevice?.captureSession(Arrays.asList(surface, imageReader?.surface))
-                captureSession = session
-                try {
-                    previewRequestBuilder.set(
-                        CaptureRequest.CONTROL_AF_MODE,
-                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
-                    )
-                    previewRequest = previewRequestBuilder.build()
-                    captureSession?.setRepeatingRequest(
-                        previewRequest,
-                        captureCallback,
-                        Handler(backgroundThread?.looper)
-                    )
-                } catch (e: CameraAccessException) {
-                    Log.e(TAG, e.message)
-                }
+                captureSession = cameraDevice?.captureSession(Arrays.asList(surface, imageReader?.surface))
+                resumeCapture()
             }
         } catch (e: CameraAccessException) {
             Log.e(TAG, e.message)
@@ -198,8 +182,7 @@ class MainActivity : AppCompatActivity() {
      */
     private fun resumeCapture() {
         previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_CANCEL)
-        captureSession?.capture(previewRequestBuilder.build(), captureCallback, backgroundHandler)
-        captureSession?.setRepeatingRequest(previewRequest, captureCallback, backgroundHandler)
+        captureSession?.setRepeatingRequest(previewRequestBuilder.build(), captureCallback, backgroundHandler)
     }
 
     private val textureViewSurfaceTextureListener = object : TextureView.SurfaceTextureListener {
@@ -232,6 +215,28 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             createCaptureSession(outputs, callback, null)
+        }
+
+    // NOTE: CameraDevice.StateCallbackをsuspendCoroutine利用に置き換えたかったが、PermissionsDispatcherとの絡み？でダメだった
+    private suspend fun CameraManager.openCamera(cameraId: String, handler: Handler?): CameraDevice? =
+        suspendCoroutine { continuation ->
+            val callback = object : CameraDevice.StateCallback() {
+                override fun onOpened(camera: CameraDevice) {
+                    continuation.resume(camera)
+                }
+
+                override fun onDisconnected(camera: CameraDevice) {
+                    camera.close()
+                    continuation.resume(null)
+                }
+
+                override fun onError(camera: CameraDevice, error: Int) {
+                    camera.close()
+                    Log.w(TAG, "CameraManager.openCamera onError")
+                    continuation.resume(null)
+                }
+            }
+            openCamera(cameraId, callback, handler)
         }
 
     private val cameraDeviceStateCallback = object : CameraDevice.StateCallback() {
@@ -321,7 +326,7 @@ class MainActivity : AppCompatActivity() {
                             isbnCode = this
                             textViewIsbn.text = isbnCode
 //                            requestNdlApi(isbnCode!!)
-                            requestNdlApi2(isbnCode!!)
+                            requestNdlApi(isbnCode!!)
                         }
                     }
             }
@@ -341,67 +346,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * 国会図書館検索呼び出し（Coroutine版）
-     */
-    private fun requestNdlApi2(barcode: String) {
-        val interceptor = HttpLoggingInterceptor()
-            .setLevel(HttpLoggingInterceptor.Level.BASIC)
-        val okHttpClient = OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor(interceptor)
-            .build()
-        val client = OpenSearchApiClientImplTikXml(okHttpClient)
-
-        fun fetchAsync(): Deferred<Single<Book>> = scope.async { client.search(barcode) }
-        scope.launch {
-            try {
-                fetchAsync().await().let {
-                    val book = it.blockingGet()
-                    if (book.items.isEmpty()) {
-                        return@let
-                    }
-                    book.items[0].apply {
-                        // タイトル
-                        val titleBuilder = StringBuilder()
-                        titleBuilder.append(title)
-                        subject?.let { s ->
-                            if (s.isNotEmpty()) {
-                                titleBuilder.append(" ").append(s)
-                            }
-                        }
-                        volume?.let { v ->
-                            if (v.isNotEmpty()) {
-                                titleBuilder.append(" ").append(v)
-                            }
-                        }
-                        edition?.let { e ->
-                            if (e.isNotEmpty()) {
-                                titleBuilder.append(" ").append(e)
-                            }
-                        }
-                        seriesTitle?.let { t ->
-                            if (t.isNotEmpty()) {
-                                titleBuilder.append(" ").append(t)
-                            }
-                        }
-                        textViewTitle.text = titleBuilder.toString()
-
-                        // 出版社
-                        textViewPublisher.text = publisher
-
-                        // 著者
-                        textViewCreator.text = creators?.joinToString(separator = ", ")
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, String.format("error:" + e.message))
-            }
-        }
-    }
-
-    /**
      * 国会図書館検索呼び出し
      */
     private fun requestNdlApi(barcode: String) {
@@ -413,19 +357,20 @@ class MainActivity : AppCompatActivity() {
             .writeTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(interceptor)
             .build()
-
         val client = OpenSearchApiClientImplTikXml(okHttpClient)
-        val schedulerProvider = AppSchedulerProvider()
 
-        val subscribe = client.search(barcode)
-            .subscribeOn(schedulerProvider.newThread())
-            .observeOn(schedulerProvider.ui())
-            .subscribe({
-                Log.d(TAG, String.format("response:%d\n", it.items.size))
-                if (it.items.isEmpty()) {
-                    return@subscribe
+        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+            Log.e(TAG, String.format("error:" + throwable.message))
+        }
+
+        fun fetchAsync(): Deferred<Single<Book>> = scope.async { client.search(barcode) }
+        scope.launch(exceptionHandler) {
+            fetchAsync().await().let {
+                val book = it.blockingGet()
+                if (book.items.isEmpty()) {
+                    return@let
                 }
-                it.items[0].apply {
+                book.items[0].apply {
                     // タイトル
                     val titleBuilder = StringBuilder()
                     titleBuilder.append(title)
@@ -457,14 +402,12 @@ class MainActivity : AppCompatActivity() {
                     // 著者
                     textViewCreator.text = creators?.joinToString(separator = ", ")
                 }
-            }, {
-                Log.e(TAG, String.format("error:" + it.message))
-            })
+            }
+        }
     }
 
     companion object {
         val TAG = MainActivity::class.java.simpleName
-        // NOTE: 大きくすれば滑らかになるがメモリ食う
         const val MAX_IMAGES = 2
     }
 }
