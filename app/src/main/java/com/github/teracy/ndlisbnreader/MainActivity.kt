@@ -18,13 +18,16 @@ import android.view.Surface
 import android.view.TextureView
 import android.view.View
 import android.view.ViewTreeObserver
+import com.github.teracy.ndlapi.response.Book
 import com.github.teracy.ndlapi_tikxml.OpenSearchApiClientImplTikXml
 import com.github.teracy.ndlisbnreader.util.AppSchedulerProvider
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
+import io.reactivex.Single
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import permissions.dispatcher.*
@@ -45,6 +48,9 @@ class MainActivity : AppCompatActivity() {
     private val cameraOpenCloseLock = Semaphore(1)
 
     private var isbnCode: String? = null
+
+    private val job = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.Default + job)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -308,7 +314,8 @@ class MainActivity : AppCompatActivity() {
                         if (this != isbnCode) {
                             isbnCode = this
                             textViewIsbn.text = isbnCode
-                            requestNdlApi(isbnCode!!)
+//                            requestNdlApi(isbnCode!!)
+                            requestNdlApi2(isbnCode!!)
                         }
                     }
             }
@@ -323,6 +330,67 @@ class MainActivity : AppCompatActivity() {
                 it.acquireNextImage().apply {
                     readBarcode()
                 }.close()
+            }
+        }
+    }
+
+    /**
+     * 国会図書館検索呼び出し（Coroutine版）
+     */
+    private fun requestNdlApi2(barcode: String) {
+        val interceptor = HttpLoggingInterceptor()
+            .setLevel(HttpLoggingInterceptor.Level.BASIC)
+        val okHttpClient = OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor(interceptor)
+            .build()
+        val client = OpenSearchApiClientImplTikXml(okHttpClient)
+
+        fun fetchAsync(): Deferred<Single<Book>> = scope.async { client.search(barcode) }
+        scope.launch {
+            try {
+                fetchAsync().await().let {
+                    val book = it.blockingGet()
+                    if (book.items.isEmpty()) {
+                        return@let
+                    }
+                    book.items[0].apply {
+                        // タイトル
+                        val titleBuilder = StringBuilder()
+                        titleBuilder.append(title)
+                        subject?.let { s ->
+                            if (s.isNotEmpty()) {
+                                titleBuilder.append(" ").append(s)
+                            }
+                        }
+                        volume?.let { v ->
+                            if (v.isNotEmpty()) {
+                                titleBuilder.append(" ").append(v)
+                            }
+                        }
+                        edition?.let { e ->
+                            if (e.isNotEmpty()) {
+                                titleBuilder.append(" ").append(e)
+                            }
+                        }
+                        seriesTitle?.let { t ->
+                            if (t.isNotEmpty()) {
+                                titleBuilder.append(" ").append(t)
+                            }
+                        }
+                        textViewTitle.text = titleBuilder.toString()
+
+                        // 出版社
+                        textViewPublisher.text = publisher
+
+                        // 著者
+                        textViewCreator.text = creators?.joinToString(separator = ", ")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, String.format("error:" + e.message))
             }
         }
     }
