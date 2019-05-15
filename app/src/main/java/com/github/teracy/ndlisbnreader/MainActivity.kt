@@ -34,6 +34,8 @@ import permissions.dispatcher.*
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 @RuntimePermissions
 class MainActivity : AppCompatActivity() {
@@ -168,11 +170,24 @@ class MainActivity : AppCompatActivity() {
             previewRequestBuilder = cameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
             previewRequestBuilder.addTarget(surface)
 
-            cameraDevice?.createCaptureSession(
-                Arrays.asList(surface, imageReader?.surface),
-                cameraCaptureSessionStateCallback,
-                null
-            )
+            GlobalScope.launch(Dispatchers.Main) {
+                val session = cameraDevice?.captureSession(Arrays.asList(surface, imageReader?.surface))
+                captureSession = session
+                try {
+                    previewRequestBuilder.set(
+                        CaptureRequest.CONTROL_AF_MODE,
+                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                    )
+                    previewRequest = previewRequestBuilder.build()
+                    captureSession?.setRepeatingRequest(
+                        previewRequest,
+                        captureCallback,
+                        Handler(backgroundThread?.looper)
+                    )
+                } catch (e: CameraAccessException) {
+                    Log.e(TAG, e.message)
+                }
+            }
         } catch (e: CameraAccessException) {
             Log.e(TAG, e.message)
         }
@@ -203,30 +218,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val cameraCaptureSessionStateCallback = object : CameraCaptureSession.StateCallback() {
-        override fun onConfigured(session: CameraCaptureSession) {
-            if (cameraDevice == null) return
-            captureSession = session
-            try {
-                previewRequestBuilder.set(
-                    CaptureRequest.CONTROL_AF_MODE,
-                    CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
-                )
-                previewRequest = previewRequestBuilder.build()
-                captureSession?.setRepeatingRequest(
-                    previewRequest,
-                    captureCallback,
-                    Handler(backgroundThread?.looper)
-                )
-            } catch (e: CameraAccessException) {
-                Log.e(TAG, e.message)
-            }
-        }
+    // NOTE: CameraCaptureSession.StateCallbackのsuspendCoroutine版
+    private suspend fun CameraDevice.captureSession(outputs: List<Surface?>): CameraCaptureSession? =
+        suspendCoroutine { continuation ->
+            val callback = object : CameraCaptureSession.StateCallback() {
+                override fun onConfigured(session: CameraCaptureSession) {
+                    continuation.resume(session)
+                }
 
-        override fun onConfigureFailed(session: CameraCaptureSession) {
-            Log.e(TAG, "onConfigureFailed")
+                override fun onConfigureFailed(session: CameraCaptureSession) {
+                    Log.e(TAG, "CameraDevice.captureSession onConfigureFailed")
+                    continuation.resume(null)
+                }
+            }
+            createCaptureSession(outputs, callback, null)
         }
-    }
 
     private val cameraDeviceStateCallback = object : CameraDevice.StateCallback() {
         override fun onOpened(cameraDevice: CameraDevice) {
