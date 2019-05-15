@@ -189,7 +189,7 @@ class MainActivity : AppCompatActivity() {
         override fun onSurfaceTextureDestroyed(p0: SurfaceTexture?): Boolean = false
 
         override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) {
-            imageReader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 2).apply {
+            imageReader = ImageReader.newInstance(width, height, ImageFormat.JPEG, MAX_IMAGES).apply {
                 setOnImageAvailableListener(onImageAvailableListener, backgroundHandler)
             }
             // Annotation ProcessorによってopenCameraから生成されたメソッドを呼ぶ
@@ -390,6 +390,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         val TAG = MainActivity::class.java.simpleName
+        // NOTE: 大きくすれば滑らかになるがメモリ食う
+        const val MAX_IMAGES = 2
     }
 }
 
