@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
     private val scope = CoroutineScope(Dispatchers.Default + job)
 
     // 処理状態
-    private var captureState: CaptureState = CaptureState.READY
+    private var captureState: CaptureState = CaptureState.WAITING_LOCK
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -258,15 +258,62 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val captureCallback = object : CameraCaptureSession.CaptureCallback() {
+        // NOTE: CONTROL_AF_STATEは自動焦点（オートフォーカス）状態、CONTROL_AE_STATEは自動露出状態
+        // https://developer.android.com/reference/android/hardware/camera2/CaptureResult.html
         private fun process(result: CaptureResult) {
             when (captureState) {
-                CaptureState.PROCESSING -> return
+                CaptureState.WAITING_LOCK -> {
+                    val afState = result.get(CaptureResult.CONTROL_AF_STATE)
+                    if (afState == null) {
+                        captureState = CaptureState.PREVIEW
+                        autoFocusEnded(false)
+                        return
+                    }
+                    if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED ||
+                        afState == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
+                    ) {
+                        val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
+                        if (aeState == null || aeState == CaptureResult.CONTROL_AE_STATE_CONVERGED) {
+                            captureState = CaptureState.PREVIEW
+                            autoFocusEnded(false)
+                            return
+                        }
+                    }
+                    // TODO: 同じAF状態が通知され続ける場合の回避実装
+                    //  https://moewe-net.com/android/camera2-auto-focus
+                }
+                CaptureState.WAITING_PRE_CAPTURE -> {
+                    val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
+                    if (aeState == null ||
+                        aeState == CaptureResult.CONTROL_AE_STATE_PRECAPTURE ||
+                        aeState == CaptureRequest.CONTROL_AE_STATE_FLASH_REQUIRED
+                    ) {
+                        captureState = CaptureState.WAITING_NON_PRE_CAPTURE
+                    } else if (aeState == CaptureResult.CONTROL_AE_STATE_CONVERGED) {
+                        captureState = CaptureState.PREVIEW
+                        autoFocusEnded(true)
+                    }
+                    return
+                }
+                CaptureState.WAITING_NON_PRE_CAPTURE -> {
+                    val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
+                    if (aeState == null ||
+                        aeState != CaptureResult.CONTROL_AE_STATE_PRECAPTURE
+                    ) {
+                        captureState = CaptureState.PREVIEW
+                        autoFocusEnded(true)
+                    }
+                }
                 else -> {
                     result.get(CaptureResult.CONTROL_AE_STATE) ?: return
-                    captureState = CaptureState.PROCESSING
+                    captureState = CaptureState.WAITING_LOCK
                     captureStillPicture()
                 }
             }
+        }
+
+        private fun autoFocusEnded(state: Boolean) {
+            // フォーカス完了/失敗時の処理
         }
 
         override fun onCaptureCompleted(
@@ -305,7 +352,7 @@ class MainActivity : AppCompatActivity() {
                 request: CaptureRequest,
                 result: TotalCaptureResult
             ) {
-                captureState = CaptureState.READY
+                captureState = CaptureState.WAITING_LOCK
                 captureSession?.setRepeatingRequest(captureRequest, captureCallback, backgroundHandler)
             }
         }
@@ -428,14 +475,10 @@ class MainActivity : AppCompatActivity() {
      * 静止画処理用Surfaceの状態
      */
     private enum class CaptureState {
-        /**
-         * 処理中
-         */
-        PROCESSING,
-        /**
-         * 処理待ち
-         */
-        READY
+        PREVIEW,
+        WAITING_LOCK,
+        WAITING_PRE_CAPTURE,
+        WAITING_NON_PRE_CAPTURE
     }
 
     companion object {
