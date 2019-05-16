@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     private var captureSession: CameraCaptureSession? = null
     private var cameraDevice: CameraDevice? = null
     private lateinit var previewRequestBuilder: CaptureRequest.Builder
+    private lateinit var captureRequest: CaptureRequest
     private var imageReader: ImageReader? = null
     private var backgroundThread: HandlerThread? = null
     private var backgroundHandler: Handler? = null
@@ -51,6 +52,9 @@ class MainActivity : AppCompatActivity() {
 
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.Default + job)
+
+    // 処理状態
+    private var captureState: CaptureState = CaptureState.READY
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -170,19 +174,13 @@ class MainActivity : AppCompatActivity() {
 
             GlobalScope.launch(Dispatchers.Main) {
                 captureSession = cameraDevice?.captureSession(Arrays.asList(surface, imageReader?.surface))
-                resumeCapture()
+                previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_CANCEL)
+                captureRequest = previewRequestBuilder.build()
+                captureSession?.setRepeatingRequest(previewRequestBuilder.build(), captureCallback, backgroundHandler)
             }
         } catch (e: CameraAccessException) {
             Log.e(TAG, e.message)
         }
-    }
-
-    /**
-     * キャプチャ処理再開
-     */
-    private fun resumeCapture() {
-        previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_CANCEL)
-        captureSession?.setRepeatingRequest(previewRequestBuilder.build(), captureCallback, backgroundHandler)
     }
 
     private val textureViewSurfaceTextureListener = object : TextureView.SurfaceTextureListener {
@@ -260,43 +258,63 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val captureCallback = object : CameraCaptureSession.CaptureCallback() {
+        private fun process(result: CaptureResult) {
+            when (captureState) {
+                CaptureState.PROCESSING -> return
+                else -> {
+                    result.get(CaptureResult.CONTROL_AE_STATE) ?: return
+                    captureState = CaptureState.PROCESSING
+                    captureStillPicture()
+                }
+            }
+        }
+
         override fun onCaptureCompleted(
             session: CameraCaptureSession,
             request: CaptureRequest,
             result: TotalCaptureResult
         ) {
-            process()
+            process(result)
         }
 
-        /**
-         * 読み取った画像の処理
-         */
-        private fun process() {
-            val captureBuilder = cameraDevice?.createCaptureRequest(
-                CameraDevice.TEMPLATE_STILL_CAPTURE
-            )?.apply {
-                imageReader?.surface?.apply {
-                    addTarget(this)
-                }
-                set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
-            }
-            val captureCallback = object : CameraCaptureSession.CaptureCallback() {
+        override fun onCaptureProgressed(
+            session: CameraCaptureSession,
+            request: CaptureRequest,
+            partialResult: CaptureResult
+        ) {
+            process(partialResult)
+        }
+    }
 
-                override fun onCaptureCompleted(
-                    session: CameraCaptureSession,
-                    request: CaptureRequest,
-                    result: TotalCaptureResult
-                ) {
-                    resumeCapture()
-                }
+    /**
+     * 読み取った静止画の処理
+     */
+    private fun captureStillPicture() {
+        val captureBuilder = cameraDevice?.createCaptureRequest(
+            CameraDevice.TEMPLATE_STILL_CAPTURE
+        )?.apply {
+            imageReader?.surface?.apply {
+                addTarget(this)
             }
+            set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+        }
+        val callback = object : CameraCaptureSession.CaptureCallback() {
 
-            captureBuilder?.build()?.let { request ->
-                captureSession?.apply {
-                    stopRepeating()
-                    abortCaptures()
-                    capture(request, captureCallback, null)
-                }
+            override fun onCaptureCompleted(
+                session: CameraCaptureSession,
+                request: CaptureRequest,
+                result: TotalCaptureResult
+            ) {
+                captureState = CaptureState.READY
+                captureSession?.setRepeatingRequest(captureRequest, captureCallback, backgroundHandler)
+            }
+        }
+
+        captureBuilder?.build()?.let { request ->
+            captureSession?.apply {
+                stopRepeating()
+                abortCaptures()
+                capture(request, callback, null)
             }
         }
     }
@@ -404,6 +422,20 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * 静止画処理用Surfaceの状態
+     */
+    private enum class CaptureState {
+        /**
+         * 処理中
+         */
+        PROCESSING,
+        /**
+         * 処理待ち
+         */
+        READY
     }
 
     companion object {
