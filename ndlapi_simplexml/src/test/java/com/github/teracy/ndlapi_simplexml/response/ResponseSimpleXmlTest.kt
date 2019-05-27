@@ -13,7 +13,6 @@ import org.junit.Rule
 import org.junit.Test
 import retrofit2.Call
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import retrofit2.http.GET
 import java.io.BufferedReader
@@ -35,7 +34,6 @@ class ResponseSimpleXmlTest {
     fun setUp() {
         service = Retrofit.Builder()
             .baseUrl(server.url("/"))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(SimpleXmlConverterFactory.createNonStrict())
             .build()
             .create(Service::class.java)

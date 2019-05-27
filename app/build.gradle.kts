@@ -19,7 +19,7 @@ android {
     }
     buildTypes {
         getByName("release") {
-            setMinifyEnabled(false)
+            isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -49,21 +49,11 @@ dependencies {
 
     // javax.inject
     implementation(Dependencies.javaxInject)
-    // RxJava
-    implementation(Dependencies.rxjava2)
     // OkHttp
     implementation(Dependencies.Okhttp3.runtime)
     implementation(Dependencies.Okhttp3.loggingInterceptor)
     // retrofit
     implementation(Dependencies.Retrofit2.runtime)
-    implementation(Dependencies.Retrofit2.adapterRxjava2) {
-        exclude(group = "io.reactivex.rxjava2", module = "rxjava")
-    }
-    implementation(Dependencies.Retrofit2.converterMoshi) {
-        exclude(group = "com.squareup.moshi", module = "moshi")
-    }
-    // RxAndroid
-    implementation(Dependencies.rxandroid)
     // Dagger2
     implementation(Dependencies.Dagger.runtime)
     implementation(Dependencies.Dagger.android) {
@@ -72,11 +62,6 @@ dependencies {
     implementation(Dependencies.Dagger.androidSupport) {
         exclude(group = "com.google.code.findbugs", module = "jsr305")
     }
-    // Paging
-    implementation(Dependencies.paging)
-    // LifeCycle
-    implementation(Dependencies.Lifecycle.reactivestreams)
-    implementation(Dependencies.Lifecycle.extensions)
     // Firebase
     implementation(Dependencies.Firebase.runtime)
     implementation(Dependencies.Firebase.mlVision)

@@ -4,12 +4,12 @@ import com.github.teracy.ndlapi.OpenSearchApiClient
 import com.github.teracy.ndlapi.response.Book
 import com.github.teracy.ndlapi_tikxml.response.ResponseTikXml
 import com.github.teracy.ndlapi_tikxml.response.convert
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.tickaroo.tikxml.TikXml
 import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
-import io.reactivex.Single
+import kotlinx.coroutines.Deferred
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Query
@@ -23,18 +23,19 @@ class OpenSearchApiClientImplTikXml @Inject constructor(okHttpClient: OkHttpClie
     private val service: OpenSearchApiService = Retrofit.Builder()
         .client(okHttpClient)
         .baseUrl("http://iss.ndl.go.jp")
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+        .addCallAdapterFactory(CoroutineCallAdapterFactory())
         .addConverterFactory(TikXmlConverterFactory.create(tikXml))
         .build()
         .create(OpenSearchApiService::class.java)
 
-    override fun search(isbn: String): Single<Book> {
-        return service.getOpenSearchResponse(isbn).map(ResponseTikXml::convert)
+    override suspend fun search(isbn: String): Book {
+        val responseTikXml = service.getOpenSearchResponseAsync(isbn).await()
+        return responseTikXml.convert()
     }
 }
 
 internal interface OpenSearchApiService {
     @Headers("connection: close")
     @GET("/api/opensearch")
-    fun getOpenSearchResponse(@Query("isbn") isbn: String): Single<ResponseTikXml>
+    fun getOpenSearchResponseAsync(@Query("isbn") isbn: String): Deferred<ResponseTikXml>
 }

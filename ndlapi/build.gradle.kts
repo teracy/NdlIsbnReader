@@ -17,7 +17,7 @@ android {
 
     buildTypes {
         getByName("release") {
-            setMinifyEnabled(false)
+            isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -32,14 +32,14 @@ dependencies {
     implementation(fileTree("dir" to "libs", "include" to listOf("*.jar")))
 
     implementation(Dependencies.Kotlin.stdlib)
+    implementation(Dependencies.KotlinxCoroutines.core)
+    implementation(Dependencies.KotlinxCoroutines.android)
+
     implementation(Dependencies.Support.appCompat)
 
     testImplementation(Dependencies.junit)
     testImplementation(Dependencies.assertj)
     androidTestImplementation(Dependencies.assertj)
-
-    // RxJava
-    implementation(Dependencies.rxjava2)
 
     androidTestImplementation(Dependencies.SupportTest.runner)
     androidTestImplementation(Dependencies.SupportTest.espressoCore)

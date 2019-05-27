@@ -18,13 +18,11 @@ import android.view.Surface
 import android.view.TextureView
 import android.view.View
 import android.view.ViewTreeObserver
-import com.github.teracy.ndlapi.response.Book
 import com.github.teracy.ndlapi_tikxml.OpenSearchApiClientImplTikXml
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
-import io.reactivex.Single
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
@@ -428,10 +426,8 @@ class MainActivity : AppCompatActivity() {
             Log.e(TAG, String.format("error:" + throwable.message))
         }
 
-        fun fetchAsync(): Deferred<Single<Book>> = scope.async { client.search(barcode) }
         scope.launch(exceptionHandler) {
-            fetchAsync().await().let {
-                val book = it.blockingGet()
+            client.search(barcode).let { book ->
                 if (book.items.isEmpty()) {
                     return@let
                 }

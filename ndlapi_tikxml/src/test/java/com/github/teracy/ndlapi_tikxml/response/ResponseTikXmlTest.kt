@@ -11,7 +11,6 @@ import org.junit.Rule
 import org.junit.Test
 import retrofit2.Call
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.http.GET
 import java.io.BufferedReader
 import java.io.File
@@ -33,7 +32,6 @@ class ResponseTikXmlTest {
         val tikXml = TikXml.Builder().exceptionOnUnreadXml(false).build()
         service = Retrofit.Builder()
             .baseUrl(server.url("/"))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(TikXmlConverterFactory.create(tikXml))
             .build()
             .create(Service::class.java)
