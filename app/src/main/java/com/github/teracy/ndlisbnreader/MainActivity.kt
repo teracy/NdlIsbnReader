@@ -51,6 +51,11 @@ class MainActivity : AppCompatActivity() {
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.Default + job)
 
+    // AFの同じ状態のカウント
+    private var afSameStateRepeatCount = 0
+    // AFの状態
+    private var preAfState = -1
+
     // 処理状態
     private var captureState: CaptureState = CaptureState.WAITING_LOCK
 
@@ -86,6 +91,10 @@ class MainActivity : AppCompatActivity() {
     // region Runtime Permission Implementation
     @NeedsPermission(Manifest.permission.CAMERA)
     fun openCamera() {
+        // AFの状態監視リセット
+        afSameStateRepeatCount = 0
+        preAfState = -1
+
         val manager: CameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
             if (!cameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
@@ -277,8 +286,20 @@ class MainActivity : AppCompatActivity() {
                             return
                         }
                     }
-                    // TODO: 同じAF状態が通知され続ける場合の回避実装
+                    // 同じAF状態が通知され続ける場合を回避（これを実装しないとカメラを遠方に向けた後に反応しなくなってしまう）
                     //  https://moewe-net.com/android/camera2-auto-focus
+                    if (afState != CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN && afState == preAfState) {
+                        afSameStateRepeatCount++
+                        if (afSameStateRepeatCount >= AF_SAME_STATE_REPEAT_MAX) {
+                            captureState = CaptureState.PREVIEW
+                            autoFocusEnded(false)
+                            return
+                        }
+                    } else {
+                        afSameStateRepeatCount = 0
+                    }
+                    preAfState = afState
+                    return
                 }
                 CaptureState.WAITING_PRE_CAPTURE -> {
                     val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
@@ -480,6 +501,8 @@ class MainActivity : AppCompatActivity() {
     companion object {
         val TAG = MainActivity::class.java.simpleName
         const val MAX_IMAGES = 2
+        // AFが同じ状態を送り続けてフォーカス処理が終了しないことを防ぐため、同じ状態のカウント上限
+        const val AF_SAME_STATE_REPEAT_MAX = 20
     }
 }
 
